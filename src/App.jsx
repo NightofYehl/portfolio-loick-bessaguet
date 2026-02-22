@@ -143,7 +143,7 @@ function StyleBlock({ accentHover, accentActive }) {
   return (
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
-      :root { --ink:#0A0A0A; --paper:#FAFAF6; --accentHover:${accentHover}; --accentActive:${accentActive}; }
+      :root { color-scheme: light only; --ink:#0A0A0A; --paper:#FAFAF6; --accentHover:${accentHover}; --accentActive:${accentActive}; }
       * { box-sizing: border-box; }
       img { display:block; max-width:100%; }
       
@@ -247,6 +247,31 @@ function StyleBlock({ accentHover, accentActive }) {
       /* VIEWER */
       .viewerS { position: fixed; inset: 0; background: rgba(10,10,10,.92); z-index: 80; display:flex; align-items:center; justify-content:center; padding: 36px; }
       .viewerS img { max-width: calc(100vw - 40px); max-height: calc(100vh - 40px); object-fit: contain; border: none; }
+      .viewer-close {
+        position: absolute;
+        top: 18px;
+        right: 18px;
+        z-index: 100;
+        background: rgba(255,255,255,0.15);
+        border: 2px solid rgba(255,255,255,0.6);
+        color: #fff;
+        font-size: 22px;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-radius: 0;
+        padding: 0;
+        line-height: 1;
+        transition: background 0.15s, border-color 0.15s;
+        font-family: 'Inter', system-ui;
+      }
+      .viewer-close:hover {
+        background: var(--accentHover);
+        border-color: var(--accentHover);
+      }
 
       /* VIDEOS */
       .vlist { display:grid; gap: 18px; }
@@ -263,6 +288,13 @@ function StyleBlock({ accentHover, accentActive }) {
         .vcard{ grid-template-columns: 1fr; } 
         .meta{ border-left: none; border-top:2px solid #111; } 
         .meta .grid{ grid-template-columns: 1fr; } 
+      }
+
+      /* Fix Galaxy S8+ (360px) overflow */
+      .vcard {
+        max-width: 100%;
+        overflow: hidden;
+        word-break: break-word;
       }
 
       /* ABOUT / CONTACT SECTION */
@@ -571,9 +603,11 @@ function Photos({ cycleAccent, accentHover }) {
       </div>
       {viewerOpen && filtered[current] && (
         <div className="viewerS" onClick={()=>setViewerOpen(false)}>
+          <button className="viewer-close" onClick={()=>setViewerOpen(false)} aria-label="Fermer">✕</button>
           <img src={filtered[current].full || filtered[current].src} alt={`${filtered[current].cat} — ${filtered[current].title}`} onClick={(e)=>e.stopPropagation()}/>
         </div>
       )}
+
     </section>
   );
 }
