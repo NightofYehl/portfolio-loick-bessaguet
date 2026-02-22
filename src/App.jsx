@@ -28,6 +28,25 @@ export default function PortfolioLoickV3() {
 
   const go = (to) => { setRoute(to); setAccentActive(accentHover); };
   useEffect(() => { document.title = "Loïck Bessaguet — Portfolio"; }, []);
+  useEffect(() => {
+    // Force la meta color-scheme pour bloquer le dark mode Android
+    let meta = document.querySelector('meta[name="color-scheme"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'color-scheme';
+      document.head.appendChild(meta);
+    }
+    meta.content = 'light only';
+
+    let meta2 = document.querySelector('meta[name="supported-color-schemes"]');
+    if (!meta2) {
+      meta2 = document.createElement('meta');
+      meta2.name = 'supported-color-schemes';
+      document.head.appendChild(meta2);
+    }
+    meta2.content = 'light only';
+  }, []);
+
 
   const ENABLE_BG_ANIM = true;
 
@@ -145,9 +164,18 @@ function StyleBlock({ accentHover, accentActive }) {
   return (
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+      html, body, *, *::before, *::after { color-scheme: light only !important; }
+      @media (prefers-color-scheme: dark) {
+        html { background: #fff !important; color: #0A0A0A !important; }
+        body { background: #fff !important; color: #0A0A0A !important; }
+        .nav, .ticker, .meta, .contact-card, .bio-text { background: #fff !important; color: #0A0A0A !important; }
+        .vcard, .tile { background: transparent !important; }
+        img { filter: none !important; }
+      }
       :root { color-scheme: light only; --ink:#0A0A0A; --paper:#FAFAF6; --accentHover:${accentHover}; --accentActive:${accentActive}; }
       * { box-sizing: border-box; }
       img { display:block; max-width:100%; }
+
       
       /* CONTAINER: Source de vérité pour les marges latérales (desktop & mobile) */
       .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; width: 100%; }
