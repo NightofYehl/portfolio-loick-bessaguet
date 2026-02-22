@@ -1,4 +1,6 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
+import ReactDOM from 'react-dom';
+
 
 /* =====================================================
    Portfolio Loïck — V3.17 (Links in Bio)
@@ -245,13 +247,13 @@ function StyleBlock({ accentHover, accentActive }) {
       .skel { height: 220px; margin: 0 0 12px; border: 2px solid #111; break-inside: avoid; -webkit-column-break-inside: avoid; page-break-inside: avoid; background: linear-gradient(90deg, #ecebe6 0%, #f7f6f2 40%, #ecebe6 80%); background-size: 200% 100%; animation: shimmer 1.1s linear infinite; }
 
       /* VIEWER */
-      .viewerS { position: fixed; inset: 0; background: rgba(10,10,10,.92); z-index: 80; display:flex; align-items:center; justify-content:center; padding: 36px; }
-      .viewerS img { max-width: calc(100vw - 40px); max-height: calc(100vh - 40px); object-fit: contain; border: none; }
+      .viewerS { position: fixed; inset: 0; background: rgba(10,10,10,.92); z-index: 9999; display:flex; align-items:center; justify-content:center; padding: 36px; }
+      .viewerS img { max-width: calc(100vw - 40px); max-height: calc(100vh - 40px); object-fit: contain; border: none; position: relative; z-index: 1; }
       .viewer-close {
         position: absolute;
         top: 18px;
         right: 18px;
-        z-index: 100;
+        z-index: 2;
         background: rgba(255,255,255,0.15);
         border: 2px solid rgba(255,255,255,0.6);
         color: #fff;
@@ -272,6 +274,7 @@ function StyleBlock({ accentHover, accentActive }) {
         background: var(--accentHover);
         border-color: var(--accentHover);
       }
+
 
       /* VIDEOS */
       .vlist { display:grid; gap: 18px; }
@@ -577,38 +580,41 @@ function Photos({ cycleAccent, accentHover }) {
   ];
   const SIZES = [240, 180, 300, 220, 260, 200];
   return (
-    <section className="section container">
-      <div className="headrow">
-        <div className="h1">Photographies</div>
-        <p className="note note-right">Tout mon travail photographique est effectué à l’argentique, sans effets,<br />notamment les photos abstraites qui sont directement issues du négatif.</p>
-      </div>
-      <div className="filters" style={{"--filterActive": filterActiveColor}}>
-        {filters.map(f=> (
-          <button key={f.key} onMouseEnter={cycleAccent} className={`fbtn ${filter===f.key?'active':''}`} onClick={()=>{ setFilter(f.key); setFilterActiveColor(accentHover); }}>{f.label.toUpperCase()}</button>
-        ))}
-      </div>
-      {showSkeleton && (
-        <div className="skelgrid" aria-hidden="true">
-          {Array.from({length: 12}).map((_,i)=>(<div key={i} className="skel" style={{height: SIZES[i % SIZES.length]}} />))}
+    <>
+      <section className="section container">
+        <div className="headrow">
+          <div className="h1">Photographies</div>
+          <p className="note note-right">Tout mon travail photographique est effectué à l'argentique, sans effets,<br />notamment les photos abstraites qui sont directement issues du négatif.</p>
         </div>
-      )}
-      <div className={`masonry ${showSkeleton ? 'hidden' : 'visible'}`} style={{"--filterActive": filterActiveColor}}>
-        {filtered.map((p, i) => (
-          <figure key={p.src || i} className={`tile ${isReady(p.src) ? 'ready' : ''}`} onMouseEnter={cycleAccent} onClick={()=>{ setCurrent(i); setViewerOpen(true); }}>
-            <img src={p.src} alt={`${p.cat} — ${p.title}`} onLoad={() => markLoaded(p.src)} />
-            <span className="hl" /> <span className="edge" />
-            <div className="cap"><span>{p.title}</span><span>{p.cat}{p.film ? ` — ${p.film}` : ""}</span></div>
-          </figure>
-        ))}
-      </div>
-      {viewerOpen && filtered[current] && (
-        <div className="viewerS" onClick={()=>setViewerOpen(false)}>
-          <button className="viewer-close" onClick={()=>setViewerOpen(false)} aria-label="Fermer">✕</button>
-          <img src={filtered[current].full || filtered[current].src} alt={`${filtered[current].cat} — ${filtered[current].title}`} onClick={(e)=>e.stopPropagation()}/>
+        <div className="filters" style={{"--filterActive": filterActiveColor}}>
+          {filters.map(f=> (
+            <button key={f.key} onMouseEnter={cycleAccent} className={`fbtn ${filter===f.key?'active':''}`} onClick={()=>{ setFilter(f.key); setFilterActiveColor(accentHover); }}>{f.label.toUpperCase()}</button>
+          ))}
         </div>
-      )}
+        {showSkeleton && (
+          <div className="skelgrid" aria-hidden="true">
+            {Array.from({length: 12}).map((_,i)=>(<div key={i} className="skel" style={{height: SIZES[i % SIZES.length]}} />))}
+          </div>
+        )}
+        <div className={`masonry ${showSkeleton ? 'hidden' : 'visible'}`} style={{"--filterActive": filterActiveColor}}>
+          {filtered.map((p, i) => (
+            <figure key={p.src || i} className={`tile ${isReady(p.src) ? 'ready' : ''}`} onMouseEnter={cycleAccent} onClick={()=>{ setCurrent(i); setViewerOpen(true); }}>
+              <img src={p.src} alt={`${p.cat} — ${p.title}`} onLoad={() => markLoaded(p.src)} />
+              <span className="hl" /> <span className="edge" />
+              <div className="cap"><span>{p.title}</span><span>{p.cat}{p.film ? ` — ${p.film}` : ""}</span></div>
+            </figure>
+          ))}
+        </div>
+      </section>
 
-    </section>
+      {viewerOpen && filtered[current] && ReactDOM.createPortal(
+        <div className="viewerS" onClick={()=>setViewerOpen(false)}>
+          <button className="viewer-close" onClick={(e)=>{e.stopPropagation(); setViewerOpen(false);}} aria-label="Fermer">✕</button>
+          <img src={filtered[current].full || filtered[current].src} alt={`${filtered[current].cat} — ${filtered[current].title}`} onClick={(e)=>e.stopPropagation()}/>
+        </div>,
+        document.body
+      )}
+    </>
   );
 }
 
