@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://loickbessaguet.fr/sitemap.xml
